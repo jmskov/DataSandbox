@@ -1,12 +1,12 @@
 # Contains functions for generating synthetic training data
 
-function generate_system_data(config_file::String)
+function generate_system_data(config_file::String; dyn_fcn=nothing)
     config = parse_TOML_file(config_file)
     dataset_dict = Dict()
 
-    # ! Use at your own risk!
-    f_ex = Meta.parse(config["system_function"])
-    dyn_fcn = @RuntimeGeneratedFunction(f_ex)
+    if isnothing(dyn_fcn)
+        dyn_fcn = parse_function(config["system_function"])
+    end
 
     noise_config = config["noise"]
     
@@ -75,6 +75,12 @@ end
 
 function remove_known_function(fcn, input, output)
     return output - mapslices(fcn, input, dims=1)
+end
+
+function parse_function(fcn_string::String)
+    # ! Use at your own risk!
+    f_ex = Meta.parse(fcn_string)
+    return @RuntimeGeneratedFunction(f_ex)
 end
 
 function parse_TOML_file(filename::String)

@@ -37,12 +37,13 @@ function simulate(f, x0, steps; dt=0.1, label_fcn=nothing, stop_label=nothing)
    return simulate(f, x0, nothing, steps, dt=dt, label_fcn=label_fcn, stop_label=stop_label) 
 end
 
-function build_function(config_filename::String; full_observability=true, random_seed=11)   # TODO: use measurement noise someday
+function build_function(config_filename::String; dyn_fcn=nothing, full_observability=true, random_seed=11)   # TODO: use measurement noise someday
     config = parse_TOML_file(config_filename)
     mt = MersenneTwister(random_seed)
 
-    f_ex = Meta.parse(config["system_function"])
-    dyn_fcn = @RuntimeGeneratedFunction(f_ex)
+    if isnothing(dyn_fcn)
+        dyn_fcn = parse_function(config["system_function"])
+    end
 
     noise_config = config["noise"]
     n_dims_out = length(config["data"]["sample_range"][1]) # TODO: Assumes same dims in input and output
