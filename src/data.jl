@@ -12,17 +12,23 @@ function generate_system_data(config_file::String)
     dyn_fcn = @RuntimeGeneratedFunction(f_ex)
 
     noise_config = config["noise"]
+    
+    measurement_noise_dist = nothing
     if noise_config["measurement_distribution"] == "Gaussian"
         measurement_noise_dist = Normal(noise_config["measurement_mean"], noise_config["measurement_std"])
-        dataset_dict[:measurement_noise] = noise_config 
-    else
-        measurement_noise_dist = nothing
+        dataset_dict[:noise] = noise_config 
+    end
+
+    process_noise_dist = nothing
+    if noise_config["process_distribution"] == "Gaussian"
+        measurement_noise_dist = Normal(noise_config["process_mean"], noise_config["process_std"]) 
+        dataset_dict[:noise] = noise_config     # TODO: Redundant
     end
 
     data_config = config["data"]
     sample_range = data_config["sample_range"]
     dataset_size = data_config["dataset_size"]
-    input, output = sample_function(dyn_fcn, sample_range, dataset_size, measurement_noise_dist=measurement_noise_dist)
+    input, output = sample_function(dyn_fcn, sample_range, dataset_size, measurement_noise_dist=measurement_noise_dist, process_noise_dist=process_noise_dist)
     dataset_dict[:size] = dataset_size
     dataset_dict[:input] = input
     dataset_dict[:output] = output
