@@ -11,7 +11,9 @@ using Printf
 using BSON
 
 include("data.jl")
+include("simulate.jl")
 
 export generate_system_data
+export build_function, simulate
 
 end
