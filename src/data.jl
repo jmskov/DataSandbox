@@ -1,10 +1,7 @@
 # Contains functions for generating synthetic training data
 
 function generate_system_data(config_file::String)
-    f = open(config_file)
-	config = TOML.parse(f)
-	close(f)
-
+    config = parse_TOML_file(config_file)
     dataset_dict = Dict()
 
     # ! Use at your own risk!
@@ -21,7 +18,7 @@ function generate_system_data(config_file::String)
 
     process_noise_dist = nothing
     if noise_config["process_distribution"] == "Gaussian"
-        measurement_noise_dist = Normal(noise_config["process_mean"], noise_config["process_std"]) 
+        process_noise_dist = Normal(noise_config["process_mean"], noise_config["process_std"]) 
         dataset_dict[:noise] = noise_config     # TODO: Redundant
     end
 
@@ -78,4 +75,11 @@ end
 
 function remove_known_function(fcn, input, output)
     return output - mapslices(fcn, input, dims=1)
+end
+
+function parse_TOML_file(filename::String)
+    f = open(filename)
+	config = TOML.parse(f)
+	close(f)
+    return config
 end
