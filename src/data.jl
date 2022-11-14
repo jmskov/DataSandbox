@@ -8,7 +8,7 @@ function generate_system_data(config_file::String)
     dataset_dict = Dict()
 
     # ! Use at your own risk!
-    f_ex = Meta.parse(config["system"])
+    f_ex = Meta.parse(config["system_function"])
     dyn_fcn = @RuntimeGeneratedFunction(f_ex)
 
     noise_config = config["noise"]
@@ -22,7 +22,7 @@ function generate_system_data(config_file::String)
     data_config = config["data"]
     sample_range = data_config["sample_range"]
     dataset_size = data_config["dataset_size"]
-    input, output = DataGen.sample_function(dyn_fcn, sample_range, dataset_size, measurement_noise_dist=measurement_noise_dist)
+    input, output = sample_function(dyn_fcn, sample_range, dataset_size, measurement_noise_dist=measurement_noise_dist)
     dataset_dict[:size] = dataset_size
     dataset_dict[:input] = input
     dataset_dict[:output] = output
