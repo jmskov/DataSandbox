@@ -47,6 +47,18 @@ function generate_system_data(config_file::String; dyn_fcn=nothing)
 
     return dataset_dict
 end
+
+"""
+Generate multiple datasets for a system with multiple modes.
+"""
+function generate_multimodal_system_data(filename::String)
+    config = parse_TOML_file(filename) 
+    components = config["components"]
+    for component_filename in components
+        generate_system_data(component_filename)
+    end
+end
+
 """
     sample_function
 
