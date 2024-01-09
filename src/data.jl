@@ -85,6 +85,22 @@ function sample_function(fcn, range::Vector, num_samples::Int;
     return input, output
 end
 
+function sample_function(fcn, point; 
+    random_seed::Int64=11, process_noise_dist=nothing, measurement_noise_dist=nothing)
+
+    mt = MersenneTwister(random_seed)
+    output = fcn(point)
+
+    if !isnothing(process_noise_dist)
+        output += rand(mt, process_noise_dist, size(output)) 
+    end
+    if !isnothing(measurement_noise_dist)
+        output += rand(mt, measurement_noise_dist, size(output)) 
+    end
+
+    return output
+end
+
 function remove_known_function(fcn, input, output)
     return output - mapslices(fcn, input, dims=1)
 end
