@@ -85,6 +85,22 @@ function sample_function(fcn, range::Vector, num_samples::Int;
     return input, output
 end
 
+function sample_function(fcn::Function, points::Matrix{Float64}; 
+    random_seed::Int64=11, process_noise_dist=nothing, measurement_noise_dist=nothing)
+    n_dims_out = length(fcn(points[:,1]))
+    num_samples = size(points, 2)
+    mt = MersenneTwister(random_seed)
+    output = mapslices(fcn, points, dims=1) 
+    if !isnothing(process_noise_dist)
+        output += rand(mt, process_noise_dist, (n_dims_out, num_samples)) 
+    end
+    if !isnothing(measurement_noise_dist)
+        output += rand(mt, measurement_noise_dist, (n_dims_out, num_samples)) 
+    end
+
+    return points, output
+end
+
 function sample_function(fcn, point; 
     random_seed::Int64=11, process_noise_dist=nothing, measurement_noise_dist=nothing)
 
